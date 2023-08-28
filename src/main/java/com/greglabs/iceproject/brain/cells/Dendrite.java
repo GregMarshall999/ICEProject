@@ -1,20 +1,46 @@
 package com.greglabs.iceproject.brain.cells;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Dendrites are like tree branches.
- * They collect the information from synapses to pass it on to the Soma.
+ * A dendrite is a branch like structure of the neuron.
+ * It receives information from a synapse then passes it on to the soma.
+ * A dendrite can be parented to another dendrite if it branches of.
+ * Inversely, a dendrite can have multiple child dendrites branching of from it.
+ * The information is represented as a long value called pulse.
+ * Here we simulate connections and disconnections between dendrites and synapses.
  */
-public class Dendrite extends CellActions {
-    private Map<Dendrite, Synapse> branches = new HashMap<>();
+public class Dendrite {
+    private Synapse synapse;
 
-    public Map<Dendrite, Synapse> getBranches() {
-        return branches;
+    private final Dendrite parentBranch;
+    private final Soma soma;
+    private final List<Dendrite> childBranches = new ArrayList<>();
+
+    private final boolean isBranch;
+
+    private long pulse;
+
+    public Dendrite(Soma soma) {
+        parentBranch = null;
+        this.soma = soma;
+        isBranch = false;
     }
 
-    public void addBranch(Dendrite dendrite, Synapse synapse) {
-        branches.put(dendrite, synapse);
+    public Dendrite(Dendrite parentBranch) {
+        this.parentBranch = parentBranch;
+        soma = null;
+        isBranch = true;
+    }
+
+    public void connectToSynapse(Synapse synapse) {
+        this.synapse = synapse;
+    }
+
+    public void branchOut(Synapse synapse) {
+        Dendrite child = new Dendrite(this);
+        child.connectToSynapse(synapse);
+        childBranches.add(child);
     }
 }
