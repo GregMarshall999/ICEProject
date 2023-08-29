@@ -5,21 +5,14 @@ import com.greglabs.iceproject.lwjgl.Testing;
 
 public class Main {
     public static void main(String[] args) {
-        Neuron n = new Neuron();
+        Neuron n1 = new Neuron();
+        Neuron n2 = new Neuron();
 
-        n.createDendrite();
-        n.createDendrite();
-        n.createDendrite();
+        n1.connectToNeuron(n2);
+        n1.receiveImpulse(5L);
+        n1.processActionPotential();
 
-        n.branchDendrite(0);
-        n.branchDendrite(0);
-        n.branchDendrite(1);
-        n.branchDendrite(2);
-
-        n.branchDendrite(0, 0);
-        n.branchDendrite(0, 1);
-
-        System.out.println(n);
+        System.out.println(n1);
 
         //new Testing().run();
     }

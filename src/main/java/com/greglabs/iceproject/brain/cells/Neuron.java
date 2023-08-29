@@ -15,42 +15,67 @@ import java.util.List;
  * We simulate the function of a neuron with its Action Potential
  */
 public class Neuron {
-    private final List<Dendrite> dendrites = new ArrayList<>();
-    private final List<Synapse> synapses = new ArrayList<>();
+    private final List<Branch> dendrites = new ArrayList<>();
+    private final List<Branch> synapses = new ArrayList<>();
 
     private long actionPotential = 0L;
 
     public void processActionPotential() {
-        //todo process information
+        for(Branch s : synapses) {
+            s.sendPulse(actionPotential);
+        }
     }
 
-    public void createDendrite() {
-        dendrites.add(new Dendrite());
+    public void receiveImpulse(long impulse) {
+        actionPotential = impulse;
+    }
+
+    public void connectToNeuron(Neuron n) {
+        Branch synapse = createSynapse();
+        Branch dendrite = n.createDendrite();
+
+        synapse.connectToBranch(dendrite);
+    }
+
+    private Branch createDendrite() {
+        Branch b = new Branch(this);
+        dendrites.add(b);
+        return b;
+    }
+
+    private Branch createSynapse() {
+        Branch b = new Branch(this);
+        synapses.add(b);
+        return b;
     }
 
     public void branchDendrite(int... path) {
-        branchDendrite(null, path);
+        branchDendrite(dendrites, null, path);
     }
 
-    private void branchDendrite(Dendrite dendrite, int... path) {
+    public void branchSynapse(int... path) {
+        branchDendrite(synapses, null, path);
+    }
+
+    private void branchDendrite(List<Branch> branches, Branch branch, int... path) {
         if(path.length > 1) {
-            if(dendrite == null && path[0] < dendrites.size()) {
-                Dendrite d = dendrites.get(path[0]);
-                branchDendrite(d, Arrays.copyOfRange(path, 1, path.length));
+            if(branch == null && path[0] < branches.size()) {
+                Branch b = branches.get(path[0]);
+                branchDendrite(branches, b, Arrays.copyOfRange(path, 1, path.length));
             }
             else {
-                assert dendrite != null;
-                if(path[0] < dendrite.getChildBranchesSize()) {
-                    Dendrite d = dendrite.getChildDendrite(path[0]);
-                    branchDendrite(d, Arrays.copyOfRange(path, 1, path.length));
+                assert branch != null;
+                if(path[0] < branch.getChildBranchesSize()) {
+                    Branch b = branch.getChildDendrite(path[0]);
+                    branchDendrite(branches, b, Arrays.copyOfRange(path, 1, path.length));
                 }
             }
         }
         else {
-            if(dendrite == null)
-                dendrites.get(path[0]).createBranch();
+            if(branch == null)
+                branches.get(path[0]).createBranch();
             else
-                dendrite.getChildDendrite(path[0]).createBranch();
+                branch.getChildDendrite(path[0]).createBranch();
         }
     }
 }
